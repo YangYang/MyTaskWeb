@@ -5,7 +5,6 @@ package com.imudges.web.mytask;
  */
 import com.imudges.web.mytask.bean.User;
 import com.imudges.web.mytask.util.Toolkit;
-import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.dao.util.Daos;
 import org.nutz.ioc.Ioc;

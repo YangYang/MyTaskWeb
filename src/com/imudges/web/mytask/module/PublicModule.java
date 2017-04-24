@@ -11,8 +11,6 @@ import org.nutz.mvc.annotation.Fail;
 import org.nutz.mvc.annotation.Ok;
 import org.nutz.mvc.annotation.Param;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +32,7 @@ public class PublicModule {
         } else {
             User user = dao.fetch(User.class,Cnd.where("username","=",username));
             if (user == null){
-                result.put("code",-3);
+                result.put("code",-2);
             }else{
                 String passwd = Toolkit.passwordEncode(password,user.getSalt());
                 User test = dao.fetch(User.class, Cnd.where("username","=",user.getUsername()).and("password","=",passwd));

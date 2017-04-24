@@ -26,7 +26,7 @@ public class Toolkit {
     }
 
     public static String passwordEncode(String password, String slat) {
-        String str = slat + password + slat + password.substring(4);
+        String str = slat + password + slat;
         return Lang.digest("SHA-512", str);
     }
 
@@ -100,5 +100,10 @@ public class Toolkit {
             re[i] = (byte) r;
         }
         return re;
+    }
+
+    public static String getAccessKey(){
+        String slat = R.sg(48).next();
+        return Lang.digest("SHA-512",Lang.digest("SHA-512",System.currentTimeMillis() + slat) + slat).substring(32);
     }
 }

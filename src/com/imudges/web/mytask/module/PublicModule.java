@@ -1,24 +1,25 @@
 package com.imudges.web.mytask.module;
 
 import com.imudges.web.mytask.bean.User;
+import com.imudges.web.mytask.util.ConfigReader;
 import com.imudges.web.mytask.util.Toolkit;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
-import org.nutz.mvc.annotation.At;
-import org.nutz.mvc.annotation.Fail;
-import org.nutz.mvc.annotation.Ok;
-import org.nutz.mvc.annotation.Param;
+import org.nutz.mvc.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
 @IocBean
+@Filters(@By(type = AuthorityFilter.class ,args={"ioc:authorityFilter"}))
 public class PublicModule {
     @Inject
     Dao dao;
 
+    @Filters
     @At("public/login")
     @Ok("json")
     @Fail("http:500")
@@ -26,7 +27,7 @@ public class PublicModule {
                         @Param("password") String password) {
         Map<String, Object> result = new HashMap<>();
         boolean loginFlag = false;
-        if(username == null || username.equals("") || password == null || password.equals("")){
+        if(username == null || password == null ){
             result.put("code",-1);
             result.put("msg","fail");
         } else {
@@ -44,9 +45,48 @@ public class PublicModule {
                 }
             }
         }
-        if (loginFlag){
+        result.put("msg",new ConfigReader().read(result.get("code").toString()));
 
+        if (loginFlag){
+            Map<String,Object> data = new HashMap<>();
+            String ak = Toolkit.getAccessKey();
+            data.put("ak",ak);
+            User user = dao.fetch(User.class,Cnd.where("username","=",username));
+            user.setAk(ak);
+            dao.update(user);
+            result.put("data",data);
+        } else {
+            Map<String,Object> data = new HashMap<>();
+            result.put("data",data);
         }
         return result;
     }
+
+    @At("public/get_user_info")
+    @Ok("json")
+    @Fail("http:500")
+    public Object getUserInfo(HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        Map<String,Object>data = new HashMap<>();
+        data.put("user", user);
+        return getSuccessResult(data);
+    }
+
+    private Map<String,Object>getSuccessResult(Map<String,Object>data){
+        Map<String,Object>result = new HashMap<>();
+        result.put("code","0");
+        result.put("msg","ok");
+        result.put("data",data);
+        return result;
+    }
+
+
+    private Map<String,Object>getFailResult(int code,Map<String,Object>data){
+        Map<String,Object>result = new HashMap<>();
+        result.put("code","" + code);
+        result.put("msg",new ConfigReader().read("" + code));
+        result.put("data",data);
+        return result;
+    }
+
 }

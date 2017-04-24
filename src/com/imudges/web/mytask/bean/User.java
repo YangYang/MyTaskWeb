@@ -27,6 +27,8 @@ public class User {
     @Column
     private Date registerTime;
 
+    @Column
+    private String ak;
 
     /**
      * 0 : user
@@ -77,6 +79,14 @@ public class User {
 
     public int getPrivilege() {
         return privilege;
+    }
+
+    public String getAk() {
+        return ak;
+    }
+
+    public void setAk(String ak) {
+        this.ak = ak;
     }
 
     public void setPrivilege(int privilege) {

@@ -19,7 +19,7 @@ public class PublicModule {
     @Inject
     Dao dao;
 
-    @Filters
+    @Filters(@By(type = LoginFilter.class ,args={"ioc:loginFilter"}))
     @At("public/login")
     @Ok("json")
     @Fail("http:500")

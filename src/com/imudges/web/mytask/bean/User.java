@@ -37,6 +37,18 @@ public class User {
     @Column
     private int privilege;
 
+    //时间戳
+    @Column
+    private long ts;
+
+    public long getTs() {
+        return ts;
+    }
+
+    public void setTs(long ts) {
+        this.ts = ts;
+    }
+
     public int getId() {
         return id;
     }

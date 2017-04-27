@@ -29,17 +29,14 @@ public class LoginFilter implements ActionFilter {
         User user = null;
         if (username != null){
             user = dao.fetch(User.class, Cnd.where("username","=",username));
-
         }
         if(!checkSecretKey(sk,ts)){
-            Map<String, Object> result = new HashMap<>();
-            result.put("code",-4);
-            result.put("msg",new ConfigReader().read("-3"));
-            result.put("data",new HashMap<>());
-            return new ViewWrapper(new UTF8JsonView(new JsonFormat(true)),result);
+            return new ViewWrapper(new UTF8JsonView(new JsonFormat(true)),getFailResult(-4));
         }else {
-            //TODO
-//            dao.fetch(User.class,Cnd.where("username","=",user.getUsername());
+            //TODO 验证ts
+            if(dao.fetch(User.class, Cnd.where("username","=",user.getUsername()).and("ts",">=",ts))!=null){
+               return new ViewWrapper(new UTF8JsonView(new JsonFormat(true)),getFailResult(-4));
+            }
         }
         if (user != null){
             user.setTs(System.currentTimeMillis());
@@ -59,5 +56,13 @@ public class LoginFilter implements ActionFilter {
             return true;
         }
         return false;
+    }
+
+    private Map<String,Object>getFailResult(int code){
+        Map<String, Object> result = new HashMap<>();
+        result.put("code",code);
+        result.put("msg",new ConfigReader().read(code + ""));
+        result.put("data",new HashMap<>());
+        return result;
     }
 }

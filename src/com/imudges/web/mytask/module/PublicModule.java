@@ -32,7 +32,7 @@ public class PublicModule {
             result.put("code",-1);
             result.put("msg","fail");
         } else {
-            password = Toolkit._3DES_decode(Config.PASSWORD_KEY.getBytes(),password.getBytes());
+            password = Toolkit._3DES_decode(Config.PASSWORD_KEY.getBytes(),Toolkit.hexstr2bytearray(password));
 
             User user = dao.fetch(User.class,Cnd.where("username","=",username));
             if (user == null){

@@ -1,6 +1,7 @@
 package com.imudges.web.mytask.module;
 
 import com.imudges.web.mytask.bean.User;
+import com.imudges.web.mytask.util.Config;
 import com.imudges.web.mytask.util.ConfigReader;
 import com.imudges.web.mytask.util.Toolkit;
 import org.nutz.dao.Cnd;
@@ -31,6 +32,8 @@ public class PublicModule {
             result.put("code",-1);
             result.put("msg","fail");
         } else {
+            password = Toolkit._3DES_decode(Config.PASSWORD_KEY.getBytes(),password.getBytes());
+
             User user = dao.fetch(User.class,Cnd.where("username","=",username));
             if (user == null){
                 result.put("code",-2);

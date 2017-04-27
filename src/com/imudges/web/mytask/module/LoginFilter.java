@@ -33,7 +33,6 @@ public class LoginFilter implements ActionFilter {
         if(!checkSecretKey(sk,ts)){
             return new ViewWrapper(new UTF8JsonView(new JsonFormat(true)),getFailResult(-4));
         }else {
-            //TODO 验证ts
             if(dao.fetch(User.class, Cnd.where("username","=",user.getUsername()).and("ts",">=",ts))!=null){
                return new ViewWrapper(new UTF8JsonView(new JsonFormat(true)),getFailResult(-4));
             }

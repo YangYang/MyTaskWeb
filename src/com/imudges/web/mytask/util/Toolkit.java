@@ -12,6 +12,9 @@ import org.nutz.lang.util.NutMap;
 import org.nutz.log.Log;
 import org.nutz.log.Logs;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class Toolkit {
 
@@ -105,5 +108,22 @@ public class Toolkit {
     public static String getAccessKey(){
         String slat = R.sg(48).next();
         return Lang.digest("SHA-512",Lang.digest("SHA-512",System.currentTimeMillis() + slat) + slat).substring(32);
+    }
+
+    public static Map<String,Object> getSuccessResult(Map<String,Object>data){
+        Map<String,Object>result = new HashMap<>();
+        result.put("code","0");
+        result.put("msg","ok");
+        result.put("data",data);
+        return result;
+    }
+
+
+    public static Map<String,Object>getFailResult(int code,Map<String,Object>data){
+        Map<String,Object>result = new HashMap<>();
+        result.put("code","" + code);
+        result.put("msg",new ConfigReader().read("" + code));
+        result.put("data",data);
+        return result;
     }
 }

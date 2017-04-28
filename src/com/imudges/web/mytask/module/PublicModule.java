@@ -15,12 +15,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 @IocBean
-@Filters(@By(type = AuthorityFilter.class ,args={"ioc:authorityFilter"}))
+@Filters({@By(type = AccessKeyFilter.class, args = {"ioc:accessKeyFilter"}),@By(type = SecretKeyFilter.class, args = {"ioc:secretKeyFilter"}) } )
 public class PublicModule {
     @Inject
     Dao dao;
 
-    @Filters(@By(type = LoginFilter.class ,args={"ioc:loginFilter"}))
+    @Filters(@By(type = SecretKeyFilter.class ,args={"ioc:secretKeyFilter"}))
+    //@Filters
     @At("public/login")
     @Ok("json")
     @Fail("http:500")
@@ -72,24 +73,7 @@ public class PublicModule {
         User user = (User) request.getAttribute("user");
         Map<String,Object>data = new HashMap<>();
         data.put("user", user);
-        return getSuccessResult(data);
-    }
-
-    private Map<String,Object>getSuccessResult(Map<String,Object>data){
-        Map<String,Object>result = new HashMap<>();
-        result.put("code","0");
-        result.put("msg","ok");
-        result.put("data",data);
-        return result;
-    }
-
-
-    private Map<String,Object>getFailResult(int code,Map<String,Object>data){
-        Map<String,Object>result = new HashMap<>();
-        result.put("code","" + code);
-        result.put("msg",new ConfigReader().read("" + code));
-        result.put("data",data);
-        return result;
+        return Toolkit.getSuccessResult(data);
     }
 
 }

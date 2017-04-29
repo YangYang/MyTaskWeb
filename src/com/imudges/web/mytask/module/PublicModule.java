@@ -1,5 +1,6 @@
 package com.imudges.web.mytask.module;
 
+import com.imudges.web.mytask.bean.Task;
 import com.imudges.web.mytask.bean.User;
 import com.imudges.web.mytask.util.Config;
 import com.imudges.web.mytask.util.ConfigReader;
@@ -12,16 +13,17 @@ import org.nutz.mvc.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @IocBean
-@Filters({@By(type = AccessKeyFilter.class, args = {"ioc:accessKeyFilter"}),@By(type = SecretKeyFilter.class, args = {"ioc:secretKeyFilter"}) } )
+@Filters(@By(type = AccessKeyFilter.class ,args={"ioc:accessKeyFilter"}))
+//@Filters({@By(type = AccessKeyFilter.class, args = {"ioc:accessKeyFilter"}),@By(type = SecretKeyFilter.class, args = {"ioc:secretKeyFilter"}) } )
 public class PublicModule {
     @Inject
     Dao dao;
 
-    @Filters(@By(type = SecretKeyFilter.class ,args={"ioc:secretKeyFilter"}))
-    //@Filters
+    @Filters//(@By(type = SecretKeyFilter.class ,args={"ioc:secretKeyFilter"}))
     @At("public/login")
     @Ok("json")
     @Fail("http:500")
@@ -67,12 +69,29 @@ public class PublicModule {
     }
 
     @At("public/get_user_info")
-    @Ok("json")
+    @Ok("json:{locked:'^password$|^salt$'}")
     @Fail("http:500")
     public Object getUserInfo(HttpServletRequest request){
         User user = (User) request.getAttribute("user");
         Map<String,Object>data = new HashMap<>();
         data.put("user", user);
+        return Toolkit.getSuccessResult(data);
+    }
+
+    @At("public/get_task_info")
+    @Ok("json")
+    @Fail("http:500")
+    public Object getTaskInfo(HttpServletRequest request){
+        String ak = request.getParameter("ak");
+
+        User user = (User) request.getAttribute("user");
+        if(user == null){
+            return Toolkit.getFailResult(-3,null);
+        }
+        List<Task> tasks = null;
+        tasks = dao.query(Task.class,Cnd.where("userId","=",user.getId()));
+        Map<String,Object> data = new HashMap<>();
+        data.put("tasks",tasks);
         return Toolkit.getSuccessResult(data);
     }
 

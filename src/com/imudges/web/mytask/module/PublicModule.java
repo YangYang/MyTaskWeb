@@ -61,6 +61,7 @@ public class PublicModule {
             user.setAk(ak);
             dao.update(user);
             result.put("data",data);
+            result.put("userId",user.getId()); 
         } else {
             Map<String,Object> data = new HashMap<>();
             result.put("data",data);

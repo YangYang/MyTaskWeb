@@ -15,6 +15,9 @@ public class Task {
     private int id;
 
     @Column
+    private String taskName;
+
+    @Column
     private String userId;
 
     @Column
@@ -26,6 +29,7 @@ public class Task {
     /**
      * 1：未完成
      * 0：完成
+     * -1：放弃
      * */
     @Column
     private int status;
@@ -36,6 +40,14 @@ public class Task {
      * */
     @Column
     private int type;
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
+    }
 
     public int getType() {
         return type;

@@ -96,4 +96,16 @@ public class PublicModule {
         return Toolkit.getSuccessResult(data);
     }
 
+    @At("public/upload_task")
+    @Ok("json")
+    @Fail("http:500")
+    public Object uploadTask(HttpServletRequest request){
+        String ak = request.getParameter("ak");
+        System.err.print(request.getParameter("tasks"));
+        Map<String,Object> map = new HashMap<>();
+        map.put("code","0");
+        map.put("msg","ok");
+        return Toolkit.getSuccessResult(map);
+    }
+
 }

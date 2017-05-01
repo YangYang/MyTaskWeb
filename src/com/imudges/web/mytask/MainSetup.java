@@ -25,6 +25,13 @@ public class MainSetup implements Setup{
         Dao dao = ioc.get(Dao.class);
         Daos.createTablesInPackage(dao, "com.imudges.web.mytask", false);
 
+//        User test = new User();
+//        test.setUsername("test");
+//        Toolkit.generatePasswd(test,"123456");
+//        test.setPrivilege(1);
+//        test.setRegisterTime(new Date(System.currentTimeMillis()));
+//        dao.insert(test);
+
         if(dao.count(User.class) == 0){
             User user = new User();
             user.setUsername("admin");

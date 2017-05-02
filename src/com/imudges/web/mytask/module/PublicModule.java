@@ -5,10 +5,14 @@ import com.imudges.web.mytask.bean.User;
 import com.imudges.web.mytask.util.Config;
 import com.imudges.web.mytask.util.ConfigReader;
 import com.imudges.web.mytask.util.Toolkit;
+import jdk.nashorn.internal.parser.JSONParser;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
+import org.nutz.http.Http;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
+import org.nutz.json.Json;
+import org.nutz.json.JsonParser;
 import org.nutz.mvc.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -100,13 +104,42 @@ public class PublicModule {
     @Ok("json")
     @Fail("http:500")
     public Object uploadTask(HttpServletRequest request){
+        //放置返回结果的map
+        Map<String,Object> result = new HashMap<>();
         String ak = request.getParameter("ak");
-        System.err.print(request.getParameter("tasks"));
-        Map<String,Object> map = new HashMap<>();
+        String userId = dao.fetch(User.class,Cnd.where("ak","=",ak)).getId() + "";
+        String json = request.getParameter("tasks");
+        List<Task> list = Json.fromJsonAsList(Task.class,json);
+        if(list == null || list.size() == 0){
+            //请求参数无效
+            result.put("code","-4");
+            result.put("msg",new ConfigReader().read("-4").toString());
+            return Toolkit.getSuccessResult(result);
+        }
+        for(Task t : list){
+            if(t.getTaskWebId() == null || t.getSyncStatus().equals("1")){
+                if(dao.fetch(Task.class,Cnd.where("userId","=",userId).and("id","=",t.getTaskWebId()))!=null){
+                    //已有的数据进行了修改
+                    dao.update(t);
+                } else {
+                    //本地新添加的数据
+                    t.setTaskWebId(t.getId()+"");
+                    dao.insert(t);
+                }
+            } else {}
+        }
+        result.put("code","0");
+        result.put("msg","ok");
+        return Toolkit.getSuccessResult(result);
+    }
+
+    @At("public/midifiy_password")
+    @Ok("json")
+    @Fail("http:500")
+    public Object midifyPassword(HttpServletRequest request){
         //TODO
-        map.put("code","0");
-        map.put("msg","ok");
-        return Toolkit.getSuccessResult(map);
+        String ak = request.getParameter("ak");
+        return ak;
     }
 
 }

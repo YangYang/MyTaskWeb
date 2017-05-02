@@ -41,6 +41,28 @@ public class Task {
     @Column
     private int type;
 
+    @Column
+    private String taskWebId;
+
+    @Column
+    private String syncStatus;
+
+    public String getTaskWebId() {
+        return taskWebId;
+    }
+
+    public void setTaskWebId(String taskWebId) {
+        this.taskWebId = taskWebId;
+    }
+
+    public String getSyncStatus() {
+        return syncStatus;
+    }
+
+    public void setSyncStatus(String syncStatus) {
+        this.syncStatus = syncStatus;
+    }
+
     public String getTaskName() {
         return taskName;
     }

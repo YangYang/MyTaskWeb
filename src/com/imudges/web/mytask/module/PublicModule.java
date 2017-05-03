@@ -1,21 +1,20 @@
 package com.imudges.web.mytask.module;
 
+import com.imudges.web.mytask.bean.ClientTask;
 import com.imudges.web.mytask.bean.Task;
 import com.imudges.web.mytask.bean.User;
 import com.imudges.web.mytask.util.Config;
 import com.imudges.web.mytask.util.ConfigReader;
 import com.imudges.web.mytask.util.Toolkit;
-import jdk.nashorn.internal.parser.JSONParser;
 import org.nutz.dao.Cnd;
 import org.nutz.dao.Dao;
-import org.nutz.http.Http;
 import org.nutz.ioc.loader.annotation.Inject;
 import org.nutz.ioc.loader.annotation.IocBean;
 import org.nutz.json.Json;
-import org.nutz.json.JsonParser;
 import org.nutz.mvc.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,6 +82,9 @@ public class PublicModule {
         return Toolkit.getSuccessResult(data);
     }
 
+    /**
+     * 请求服务器数据库中task
+     * */
     @At("public/get_task_info")
     @Ok("json")
     @Fail("http:500")
@@ -95,8 +97,18 @@ public class PublicModule {
         }
         List<Task> tasks = null;
         tasks = dao.query(Task.class,Cnd.where("userId","=",user.getId()));
+
+        //将服务器的Task构造为客户端的Task
+        List<ClientTask> clientTaskList = new ArrayList<>();
+        for(Task t : tasks){
+
+            //构造函数已经将webId、syncStatus修改
+            ClientTask clientTask = new ClientTask(t);
+            clientTaskList.add(clientTask);
+        }
         Map<String,Object> data = new HashMap<>();
-        data.put("tasks",tasks);
+        //返回的数据为客户端的数据格式
+        data.put("tasks",clientTaskList);
         return Toolkit.getSuccessResult(data);
     }
 
@@ -108,26 +120,29 @@ public class PublicModule {
         Map<String,Object> result = new HashMap<>();
         String ak = request.getParameter("ak");
         String userId = dao.fetch(User.class,Cnd.where("ak","=",ak)).getId() + "";
+        //无Pojo类
         String json = request.getParameter("tasks");
-        List<Task> list = Json.fromJsonAsList(Task.class,json);
-        if(list == null || list.size() == 0){
+        List<ClientTask> clientTaskList = Json.fromJsonAsList(ClientTask.class,json);
+        if(clientTaskList == null || clientTaskList.size() == 0){
             //请求参数无效
             result.put("code","-4");
             result.put("msg",new ConfigReader().read("-4").toString());
             return Toolkit.getSuccessResult(result);
         }
-        for(Task t : list){
-            if(t.getTaskWebId() == null || t.getSyncStatus().equals("1")){
-                if(dao.fetch(Task.class,Cnd.where("userId","=",userId).and("id","=",t.getTaskWebId()))!=null){
-                    //已有的数据进行了修改
-                    dao.update(t);
-                } else {
-                    //本地新添加的数据
-                    t.setTaskWebId(t.getId()+"");
-                    dao.insert(t);
-                }
-            } else {}
+        Map<Integer,ClientTask> resMap = new HashMap<>();
+        //判断数据是否需要同步
+        for(ClientTask clientTask : clientTaskList){
+            Task task = new Task(clientTask);
+            if(clientTask.getSyncStatus() == null){
+                dao.insert(task);
+                clientTask.setSyncStatus("0");
+            } else if(clientTask.getSyncStatus().equals("1")){
+                dao.update(task);
+                clientTask.setSyncStatus("0");
+            }
+            resMap.put(clientTask.getId(),clientTask);
         }
+        result.put("data",resMap);
         result.put("code","0");
         result.put("msg","ok");
         return Toolkit.getSuccessResult(result);

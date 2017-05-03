@@ -1,57 +1,69 @@
 package com.imudges.web.mytask.bean;
 
-import org.nutz.dao.entity.annotation.Column;
-import org.nutz.dao.entity.annotation.Id;
-import org.nutz.dao.entity.annotation.Table;
-
 import java.util.Date;
 
 /**
- * Created by yangyang on 2017/4/26.
+ * 客户端的task pojo
  */
-@Table("task")
-public class Task {
-    public Task(){}
 
-    public Task(ClientTask clientTask){
-        this.id = Integer.parseInt(clientTask.getTaskWebId());
-        this.taskName = clientTask.getTaskName();
-        this.userId = clientTask.getUserId();
-        this.summary = clientTask.getSummary();
-        this.addTime = clientTask.getAddTime();
-        this.status = clientTask.getStatus();
-        this.type = clientTask.getType();
+public class ClientTask {
+
+    public ClientTask() {
     }
 
-    @Id
+    public ClientTask(Task task) {
+        this.taskName = task.getTaskName();
+        this.userId = task.getUserId();
+        this.summary = task.getSummary();
+        this.addTime = task.getAddTime();
+        this.status = task.getStatus();
+        this.type = task.getType();
+        this.taskWebId = task.getId() + "";
+        this.syncStatus = "0";
+    }
+
     private int id;
 
-    @Column
     private String taskName;
 
-    @Column
     private String userId;
 
-    @Column
     private String summary;
 
-    @Column
     private Date addTime;
 
     /**
      * 1：未完成
      * 0：完成
-     * -1：放弃
+     * -1:放弃
      * */
-    @Column
     private int status;
 
     /**
      * 任务类型
      * 0，1，2，3四个级别
      * */
-    @Column
     private int type;
+
+    private String taskWebId;
+
+    private String syncStatus;
+
+    public String getSyncStatus() {
+        return syncStatus;
+    }
+
+    public void setSyncStatus(String syncStatus) {
+        this.syncStatus = syncStatus;
+    }
+
+    public String getTaskWebId() {
+        return taskWebId;
+    }
+
+    public void setTaskWebId(String taskWebId) {
+        this.taskWebId = taskWebId;
+    }
 
     public String getTaskName() {
         return taskName;

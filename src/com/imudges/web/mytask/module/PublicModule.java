@@ -125,11 +125,8 @@ public class PublicModule {
         List<ClientTask> clientTaskList = Json.fromJsonAsList(ClientTask.class,json);
         if(clientTaskList == null || clientTaskList.size() == 0){
             //请求参数无效
-            result.put("code","-4");
-            result.put("msg",new ConfigReader().read("-4").toString());
-            return Toolkit.getSuccessResult(result);
+            return Toolkit.getFailResult(-4,result);
         }
-        Map<Integer,ClientTask> resMap = new HashMap<>();
         //判断数据是否需要同步
         for(ClientTask clientTask : clientTaskList){
             Task task = new Task(clientTask);
@@ -140,11 +137,8 @@ public class PublicModule {
                 dao.update(task);
                 clientTask.setSyncStatus("0");
             }
-            resMap.put(clientTask.getId(),clientTask);
+            result.put(clientTask.getId() + "",clientTask);
         }
-        result.put("data",resMap);
-        result.put("code","0");
-        result.put("msg","ok");
         return Toolkit.getSuccessResult(result);
     }
 

@@ -14,6 +14,7 @@ import org.nutz.json.Json;
 import org.nutz.mvc.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.tools.Tool;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -142,13 +143,33 @@ public class PublicModule {
         return Toolkit.getSuccessResult(result);
     }
 
+
+    //TODO 重放问题
     @At("public/midifiy_password")
     @Ok("json")
     @Fail("http:500")
     public Object midifyPassword(HttpServletRequest request){
-        //TODO
+        Map<String,Object> result = new HashMap<>();
         String ak = request.getParameter("ak");
-        return ak;
+        String oldPassword = request.getParameter("old_password");
+        String newPassword = request.getParameter("new_password");
+        User user = (User) request.getAttribute("user");
+        if(oldPassword == null || oldPassword.equals("") || newPassword == null || newPassword.equals("")){
+            //请求参数无效
+            return Toolkit.getFailResult(-4,result);
+        }
+        oldPassword = Toolkit._3DES_decode(Config.PASSWORD_KEY.getBytes(),Toolkit.hexstr2bytearray(oldPassword));
+        oldPassword = Toolkit.passwordEncode(oldPassword,user.getSalt());
+        String ts = (String) request.getAttribute("ts");
+        if(dao.fetch(User.class,Cnd.where("ak","=",ak).and("password","=",oldPassword))!=null){
+            newPassword = Toolkit._3DES_decode(Config.PASSWORD_KEY.getBytes(),Toolkit.hexstr2bytearray(newPassword));
+            newPassword = Toolkit.passwordEncode(newPassword,user.getSalt());
+            user.setPassword(newPassword);
+            dao.update(user);
+            return Toolkit.getSuccessResult(result);
+        }
+        //旧密码错误
+        return Toolkit.getFailResult(-5,result);
     }
 
 }

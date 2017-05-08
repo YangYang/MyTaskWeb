@@ -131,10 +131,13 @@ public class PublicModule {
         //判断数据是否需要同步
         for(ClientTask clientTask : clientTaskList){
             Task task = new Task(clientTask);
-            if(clientTask.getSyncStatus() == null){
+            if(clientTask.getSyncStatus() == null|| clientTask.getSyncStatus().equals("null")){
                 dao.insert(task);
+                dao.fetch(task);
+                clientTask.setTaskWebId(task.getId() + "");
                 clientTask.setSyncStatus("0");
             } else if(clientTask.getSyncStatus().equals("1")){
+                task.setId(Integer.parseInt(clientTask.getTaskWebId()));
                 dao.update(task);
                 clientTask.setSyncStatus("0");
             }

@@ -14,7 +14,7 @@ public class Task {
     public Task(){}
 
     public Task(ClientTask clientTask){
-        this.id = Integer.parseInt(clientTask.getTaskWebId());
+//        this.id = Integer.parseInt(clientTask.getTaskWebId());
         this.taskName = clientTask.getTaskName();
         this.userId = clientTask.getUserId();
         this.summary = clientTask.getSummary();
